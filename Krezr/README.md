@@ -1,5 +1,3 @@
-<h4 id="title"><i class="icon-upload"></i></h4>
-
 <p><strong><font size="8" color="BLUE">IPEC HACKATHON</font></strong></p>
 
 <p><font size="6" color="red">PROBLEM STATEMENT  :-</font> <br>
@@ -9,4 +7,4 @@
 <i> Kartik Shandilya <br>
   Praneet Nigam <br>
   Piyush Sharma <br>
-   Yashasvi Rawat</i></p>
+   Yashasvi Rawat.</i></p>
