@@ -12,6 +12,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        new DrawerBuilder().withActivity(this).build();
+        new DrawerBuilder().withActivity(this).build();   
     }
 }
