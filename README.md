@@ -1,7 +1,7 @@
 # Krezr
 <strong>
-IPEC Hackathon</strong>
-<b>
+<p><font size="8" color="red">IPEC Hackathon</font></p></strong>
+<b><br>
 PROBLEM STATEMENT</b>
 Indian roads are evident to 4 deaths every day (Source: sites.ndtv.com)
 Over speeding and use of phones while driving has been a cause of a number of road
