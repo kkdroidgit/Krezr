@@ -124,28 +124,20 @@ public class MainActivity extends AppCompatActivity{
     //Requesting permission
     private void requestLocationPermission(){
             if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)){
-                //If the user has denied the permission previously your code will come to this block
-                //Here you can explain why you need this permission
-                //Explain here why you need this permission
             }
-            //And finally ask for the permission
             ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, FINE_LOCATION);
         }
-        //This method will be called when the user will tap on allow or deny
         @Override
         public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-            //Checking the request code of our request
             if(requestCode == FINE_LOCATION){
-                //If permission is granted
                 if(grantResults.length >0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
-                    //Displaying a toast
                     Toast.makeText(this,"Permission granted to acess location",Toast.LENGTH_LONG).show();
                 }else{
-                    //Displaying another toast if permission is not granted
                     Toast.makeText(this,"Oops you just denied the permission",Toast.LENGTH_LONG).show();
                 }
             }
             }
 
 }
+
 
