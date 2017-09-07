@@ -117,10 +117,6 @@ public class MainActivity extends AppCompatActivity{
                 .build();
     }
 
-    
-
-
-
 
     //Requesting permission
     private void requestLocationPermission(){
