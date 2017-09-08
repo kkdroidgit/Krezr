@@ -1,4 +1,4 @@
-package android.paperwrrk.www.krezr;
+package android.paperwrrk.www.krezr.location;
 
 /**
  * Created by Kartik on 7-9-17.

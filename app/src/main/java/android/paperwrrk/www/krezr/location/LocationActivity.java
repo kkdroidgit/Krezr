@@ -1,4 +1,4 @@
-package android.paperwrrk.www.krezr;
+package android.paperwrrk.www.krezr.location;
 
 import android.Manifest;
 import android.content.Context;
@@ -14,6 +14,11 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.ResultReceiver;
+import android.paperwrrk.www.krezr.AboutActivity;
+import android.paperwrrk.www.krezr.BuildConfig;
+import android.paperwrrk.www.krezr.R;
+import android.paperwrrk.www.krezr.ServicesGpsListener;
+import android.paperwrrk.www.krezr.UserLocation;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -26,7 +31,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -44,12 +48,13 @@ import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
 import com.mikepenz.materialdrawer.model.ProfileDrawerItem;
 import com.mikepenz.materialdrawer.model.SecondaryDrawerItem;
 import com.mikepenz.materialdrawer.model.SectionDrawerItem;
+import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IProfile;
 
 import java.util.Formatter;
 import java.util.Locale;
 
-public class LocationActivity extends AppCompatActivity implements IBaseGpsListener{
+public class LocationActivity extends AppCompatActivity implements ServicesGpsListener {
 
     private FusedLocationProviderClient mFusedLocationClient;
 
@@ -67,7 +72,6 @@ public class LocationActivity extends AppCompatActivity implements IBaseGpsListe
     private AddressResultReceiver mResultReceiver;
     private TextView mLocationAddressTextView;
     private ProgressBar mProgressBar;
-    private Button mFetchAddressButton;
 
 
     private int FINE_LOCATION = 23;
@@ -167,7 +171,7 @@ public class LocationActivity extends AppCompatActivity implements IBaseGpsListe
     }
 
 
-    private void updateSpeed(CLocation location) {
+    private void updateSpeed(UserLocation location) {
         // TODO Auto-generated method stub
         float nCurrentSpeed = 0;
 
@@ -204,7 +208,7 @@ public class LocationActivity extends AppCompatActivity implements IBaseGpsListe
         // TODO Auto-generated method stub
         if(location != null)
         {
-            CLocation myLocation = new CLocation(location, this.useMetricUnits());
+            UserLocation myLocation = new UserLocation(location, this.useMetricUnits());
             this.updateSpeed(myLocation);
         }
     }
@@ -291,19 +295,37 @@ public class LocationActivity extends AppCompatActivity implements IBaseGpsListe
                 .addDrawerItems(
                         new PrimaryDrawerItem().withName("Refresh")
                                 .withIdentifier(1),
-                        new PrimaryDrawerItem().withName("Settings")
-                                .withIdentifier(2),
                         new PrimaryDrawerItem().withName("About")
                                 .withIdentifier(3),
                         new SectionDrawerItem().withName("Communicate"),
                         new SecondaryDrawerItem().withName("Share App")
-                                .withIdentifier(5),
-                        new SecondaryDrawerItem().withName("Contact Us")
-                                .withIdentifier(6),
-                        new SecondaryDrawerItem().withName("Rate App")
-                                .withIdentifier(7)
+                                .withIdentifier(5)
 
-                )
+                ).withOnDrawerItemClickListener(new Drawer.OnDrawerItemClickListener() {
+                    @Override
+                    public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
+                        if (drawerItem != null){
+                            Intent intent = null;
+                            if(drawerItem.getIdentifier() == 5){
+                                final String appPackageName = getPackageName();
+                                intent = new Intent();
+                                intent.setAction(Intent.ACTION_SEND);
+                                intent.putExtra(Intent.EXTRA_TEXT,
+                                        "The Official Krezr App!!"
+                                                + appPackageName);
+                                intent.setType("text/plain");
+                            }
+                            if (drawerItem.getIdentifier()== 3){
+                                intent = new Intent(LocationActivity.this, AboutActivity.class);
+                            }
+                            if (intent!= null){
+                                startActivity(intent);
+                            }
+                        }
+                        return false;
+
+                    }
+                })
 
                 .build();
     }
@@ -440,8 +462,7 @@ public class LocationActivity extends AppCompatActivity implements IBaseGpsListe
             mProgressBar.setVisibility(ProgressBar.VISIBLE);
         } else {
             mProgressBar.setVisibility(ProgressBar.GONE);
-        }
-    }
+        } }
 
     /**
      * Shows a toast with the given text.

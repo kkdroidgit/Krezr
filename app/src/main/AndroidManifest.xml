@@ -24,19 +24,17 @@
         android:roundIcon="@mipmap/app_logo"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-
-
-        <activity android:name=".LocationActivity"
-            android:theme="@style/AppTheme.NoActionBar"/>
-
+        <activity
+            android:name=".location.LocationActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
 
         <!-- Service to asynchronously fetch a location address using a Geocoder. -->
         <service
-            android:name=".FetchAddressIntentService"
+            android:name=".location.FetchAddressIntentService"
             android:exported="false" />
 
-        <activity android:name=".SpeedActivity" />
-        <activity android:name=".SplashActivity"
+        <activity
+            android:name=".SplashActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar">
@@ -45,8 +43,11 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-
         </activity>
+        <activity
+            android:name=".AboutActivity"
+            android:label="@string/title_activity_about"
+            android:theme="@style/AppTheme.NoActionBar" />
     </application>
 
 </manifest>

@@ -1,4 +1,4 @@
-package android.paperwrrk.www.krezr;
+package android.paperwrrk.www.krezr.location;
 
 import android.app.IntentService;
 import android.content.Intent;
@@ -7,6 +7,7 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.ResultReceiver;
+import android.paperwrrk.www.krezr.R;
 import android.text.TextUtils;
 import android.util.Log;
 

@@ -6,15 +6,15 @@ import android.location.Location;
  * Created by Kartik on 8-9-17.
  */
 
-public class CLocation extends Location {
+public class UserLocation extends Location {
 
     private boolean bUseMetricUnits = false;
 
-    public CLocation(Location location) {
+    public UserLocation(Location location) {
         this(location, true);
     }
 
-    public CLocation(Location location, boolean bUseMetricUnits) {
+    public UserLocation(Location location, boolean bUseMetricUnits) {
         // TODO Auto-generated constructor stub
         super(location);
         this.bUseMetricUnits = bUseMetricUnits;
