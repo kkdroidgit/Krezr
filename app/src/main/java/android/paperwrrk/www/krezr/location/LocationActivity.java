@@ -80,6 +80,8 @@ public class LocationActivity extends AppCompatActivity implements ServicesGpsLi
     String user_Email = "guest@mbox.app.in";
     IProfile profile;
     private Drawer result;
+    public MediaPlayer mediaPlayer;
+
     private TextView text_speed;
 
 
@@ -279,6 +281,8 @@ public class LocationActivity extends AppCompatActivity implements ServicesGpsLi
                 }
                 mAddressRequested = true;
                 updateUIWidgets();
+            case R.id.stop:
+                mediaPlayer.reset();
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -482,10 +486,13 @@ public class LocationActivity extends AppCompatActivity implements ServicesGpsLi
     }
 
     public void play_sound(View view) {
-        MediaPlayer mediaPlayer = MediaPlayer.create(LocationActivity.this,R.raw.alarm);
+        mediaPlayer = MediaPlayer.create(LocationActivity.this, R.raw.alarm);
         mediaPlayer.start();
-
     }
+
+
+
+
 
     /**
      * Receiver for data sent from FetchAddressIntentService.
