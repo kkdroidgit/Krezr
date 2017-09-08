@@ -12,8 +12,8 @@
 5 Phone state listener 
 6 G.P.S</i>
 <font size="6" color="red">SOLUTION:-</font>
-<i>The application is ddesigned in such a way that it can help to prevent the most frequent cause of deaths nowadays i.e THE DEATH. This app has various modules to help the driver while driving. In this the maximum speed is set according to the specific locations. The maximum speeds are different on city roads, highways, mountains etc. The speed is decided according to the longitude of a place.
-when the driver overrides the maximum speed an alert message is given in the form of sound to the driver. If then also he does not lower his speed then after that if any calls or messages comes to the user they would be automatically blocked and a message would be automatically send to the caller that "Now the driver is busy in driving, he may contact you later."</i>
+<i>The application is designed in such a way that it can help to prevent the most frequent cause of deaths nowadays i.e THE ACCIDENT. This app has various modules to help the driver while driving. In this the maximum speed is set according to the specific locations. The maximum speeds are different on city roads, highways, mountains etc. The speed is decided according to the altitude of a place.
+When the driver overrides the maximum speed an alert message is given in the form of sound to the driver. If then also he does not lower his speed then after that if any calls or messages comes to the user they would be automatically blocked and a message would be automatically send to the caller that "Now the driver is busy in driving, he may contact you later."</i>
 <font size="6" color="red">IMAGES:-</font>
 ASSESTS
 https://mail.google.com/mail/u/0/#inbox/15e602b203ad5ef0?projector=1
