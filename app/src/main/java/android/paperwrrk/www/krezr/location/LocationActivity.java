@@ -107,7 +107,7 @@ public class LocationActivity extends AppCompatActivity implements ServicesGpsLi
         requestLocationPermission();
 
 
-        if(CheckConnection.isConnected(getApplicationContext())){
+        if(!CheckConnection.isConnected(getApplicationContext())){
             alertBuilder(true);
         }
 
