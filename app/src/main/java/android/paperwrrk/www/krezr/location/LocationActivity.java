@@ -2,6 +2,7 @@ package android.paperwrrk.www.krezr.location;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Geocoder;
@@ -16,6 +17,7 @@ import android.os.Handler;
 import android.os.ResultReceiver;
 import android.paperwrrk.www.krezr.AboutActivity;
 import android.paperwrrk.www.krezr.BuildConfig;
+import android.paperwrrk.www.krezr.CheckConnection;
 import android.paperwrrk.www.krezr.R;
 import android.paperwrrk.www.krezr.ServicesGpsListener;
 import android.paperwrrk.www.krezr.UserLocation;
@@ -24,6 +26,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -68,6 +71,9 @@ public class LocationActivity extends AppCompatActivity implements ServicesGpsLi
     private boolean mAddressRequested;
 
 
+    AlertDialog.Builder builder;
+
+
     private String mAddressOutput;
     private AddressResultReceiver mResultReceiver;
     private TextView mLocationAddressTextView;
@@ -99,6 +105,11 @@ public class LocationActivity extends AppCompatActivity implements ServicesGpsLi
         new DrawerBuilder().withActivity(this).build();
 
         requestLocationPermission();
+
+
+        if(CheckConnection.isConnected(getApplicationContext())){
+            alertBuilder(true);
+        }
 
 
         drawerImageLoader();
@@ -264,6 +275,30 @@ public class LocationActivity extends AppCompatActivity implements ServicesGpsLi
     */
     }
 
+
+
+    public void alertBuilder(Boolean shouldShould){
+        if (shouldShould){
+            builder = new AlertDialog.Builder(LocationActivity.this);
+            builder.setCancelable(false);
+            builder.setTitle("No Internet Found!")
+                    .setMessage("Do you want to enable Internet Now?")
+                    .setPositiveButton("Open Settings", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            Intent intent = new Intent(android.provider.Settings.ACTION_SETTINGS);
+                            startActivity(intent);
+                        }
+                    })
+                    .setNegativeButton("Skip for Now", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            // do nothing
+                        }
+                    })
+                    //.setIcon(android.R.drawable.ic_dialog_alert)
+                    .show();
+
+        }
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
