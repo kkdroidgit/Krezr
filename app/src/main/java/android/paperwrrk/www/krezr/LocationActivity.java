@@ -1,22 +1,33 @@
 package android.paperwrrk.www.krezr;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Geocoder;
 import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.ResultReceiver;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -25,8 +36,20 @@ import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.mikepenz.materialdrawer.AccountHeader;
+import com.mikepenz.materialdrawer.AccountHeaderBuilder;
+import com.mikepenz.materialdrawer.Drawer;
+import com.mikepenz.materialdrawer.DrawerBuilder;
+import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
+import com.mikepenz.materialdrawer.model.ProfileDrawerItem;
+import com.mikepenz.materialdrawer.model.SecondaryDrawerItem;
+import com.mikepenz.materialdrawer.model.SectionDrawerItem;
+import com.mikepenz.materialdrawer.model.interfaces.IProfile;
 
-public class LocationActivity extends AppCompatActivity {
+import java.util.Formatter;
+import java.util.Locale;
+
+public class LocationActivity extends AppCompatActivity implements IBaseGpsListener{
 
     private FusedLocationProviderClient mFusedLocationClient;
 
@@ -38,11 +61,23 @@ public class LocationActivity extends AppCompatActivity {
     private static final String LOCATION_ADDRESS_KEY = "location-address";
     private Location mLastLocation;
     private boolean mAddressRequested;
+
+
     private String mAddressOutput;
     private AddressResultReceiver mResultReceiver;
     private TextView mLocationAddressTextView;
     private ProgressBar mProgressBar;
     private Button mFetchAddressButton;
+
+
+    private int FINE_LOCATION = 23;
+    private AccountHeader headerResult = null;
+    String user_Name = "GUEST";
+    String user_Email = "guest@mbox.app.in";
+    IProfile profile;
+    private Drawer result;
+    private TextView text_speed;
+
 
 
 
@@ -51,12 +86,29 @@ public class LocationActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_location);
 
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setTitle("");
+        setSupportActionBar(toolbar);
 
+        new DrawerBuilder().withActivity(this).build();
+
+        requestLocationPermission();
+
+
+        drawerImageLoader();
+
+
+        profile = new ProfileDrawerItem().withName(user_Name).withEmail("futurelabs.app@gmail.com")
+                .withIdentifier(100);
+
+        createAccountHeader(savedInstanceState);
+        createNavDrawer(toolbar);
+
+        text_speed = (TextView) findViewById(R.id.txtCurrentSpeed);
         mResultReceiver = new AddressResultReceiver(new Handler());
 
         mLocationAddressTextView = (TextView) findViewById(R.id.location_address_view);
         mProgressBar = (ProgressBar) findViewById(R.id.progress_bar);
-        mFetchAddressButton = (Button) findViewById(R.id.fetch_address_button);
 
         // Set defaults, then update using values stored in the Bundle.
         mAddressRequested = false;
@@ -66,11 +118,230 @@ public class LocationActivity extends AppCompatActivity {
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
         updateUIWidgets();
+
+
+        // Acquire a reference to the system Location Manager
+        LocationManager locationManager = (LocationManager) this
+                .getSystemService(Context.LOCATION_SERVICE);
+
+        // Define a listener that responds to location updates
+        LocationListener locationListener = new LocationListener() {
+            public void onLocationChanged(Location location) {
+                location.getLatitude();
+
+            }
+
+            public void onStatusChanged(String provider, int status,
+                                        Bundle extras) {
+            }
+
+            public void onProviderEnabled(String provider) {
+            }
+
+            public void onProviderDisabled(String provider) {
+            }
+        };
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
+
+
+        if (mLastLocation != null) {
+            startIntentService();
+            return;
+        }
+        // If we have not yet retrieved the user location, we process the user's request by setting
+        // mAddressRequested to true. As far as the user is concerned, pressing the Fetch Address button
+        // immediately kicks off the process of getting the address.
+        mAddressRequested = true;
+        updateUIWidgets();
+
     }
+
+
+    private void updateSpeed(CLocation location) {
+        // TODO Auto-generated method stub
+        float nCurrentSpeed = 0;
+
+        if(location != null)
+        {
+            location.setUseMetricunits(this.useMetricUnits());
+            nCurrentSpeed = location.getSpeed();
+        }
+
+        Formatter fmt = new Formatter(new StringBuilder());
+        fmt.format(Locale.US, "%5.1f", nCurrentSpeed);
+        String strCurrentSpeed = fmt.toString();
+        strCurrentSpeed = strCurrentSpeed.replace(' ', '0');
+
+        String strUnits = "miles/hour";
+        if(this.useMetricUnits())
+        {
+            strUnits = "meters/second";
+        }
+
+        TextView txtCurrentSpeed = (TextView) this.findViewById(R.id.txtCurrentSpeed);
+        txtCurrentSpeed.setText(strCurrentSpeed + " " + strUnits);
+    }
+
+
+    private boolean useMetricUnits() {
+        // TODO Auto-generated method stub
+        CheckBox chkUseMetricUnits = (CheckBox) this.findViewById(R.id.chkMetricUnits);
+        return chkUseMetricUnits.isChecked();
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+        // TODO Auto-generated method stub
+        if(location != null)
+        {
+            CLocation myLocation = new CLocation(location, this.useMetricUnits());
+            this.updateSpeed(myLocation);
+        }
+    }
+
+    @Override
+    public void onProviderDisabled(String provider) {
+    }
+
+    @Override
+    public void onProviderEnabled(String provider) {
+    }
+
+    @Override
+    public void onStatusChanged(String provider, int status, Bundle extras) {
+    }
+
+    @Override
+    public void onGpsStatusChanged(int event) {
+    }
+
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+    }
+
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+    }
+
+    private void drawerImageLoader() {
+    /*
+            //initialize and create the image loader logic
+            DrawerImageLoader.init(new AbstractDrawerImageLoader() {
+                @Override
+                public void set(ImageView imageView, Uri uri, Drawable placeholder) {
+                    Picasso.with(imageView.getContext()).load(uri).placeholder(placeholder).into(imageView);
+                }
+                @Override
+                public void cancel(ImageView imageView) {
+                    Picasso.with(imageView.getContext()).cancelRequest(imageView);
+                }
+            });
+    */
+    }
+
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.refresh:
+                if (mLastLocation != null) {
+                    startIntentService();
+                }
+                mAddressRequested = true;
+                updateUIWidgets();
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    private void createNavDrawer(Toolbar toolbar) {
+        //Create the drawer
+        result = new DrawerBuilder()
+                .withActivity(this)
+                .withSliderBackgroundColor(getApplicationContext().getResources().getColor(R.color.cstm_color))
+                .withToolbar(toolbar)
+                .withHasStableIds(true)
+                .withAccountHeader(headerResult) //set the AccountHeader we created earlier for the header
+                .addDrawerItems(
+                        new PrimaryDrawerItem().withName("Refresh")
+                                .withIdentifier(1),
+                        new PrimaryDrawerItem().withName("Settings")
+                                .withIdentifier(2),
+                        new PrimaryDrawerItem().withName("About")
+                                .withIdentifier(3),
+                        new SectionDrawerItem().withName("Communicate"),
+                        new SecondaryDrawerItem().withName("Share App")
+                                .withIdentifier(5),
+                        new SecondaryDrawerItem().withName("Contact Us")
+                                .withIdentifier(6),
+                        new SecondaryDrawerItem().withName("Rate App")
+                                .withIdentifier(7)
+
+                )
+
+                .build();
+    }
+
+    private void createAccountHeader(@Nullable Bundle savedInstanceState) {
+        // Create the AccountHeader
+        headerResult = new AccountHeaderBuilder()
+                .withActivity(this)
+                .withTranslucentStatusBar(true)
+                .withHeaderBackground(R.color.primary)
+                .addProfiles(
+                        profile
+                )
+                .withSavedInstance(savedInstanceState)
+                .build();
+    }
+
+
+    //Requesting permission
+    private void requestLocationPermission() {
+        if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
+        }
+        ActivityCompat.requestPermissions(this, new String[]
+                        {Manifest.permission.ACCESS_FINE_LOCATION,
+                                Manifest.permission.CALL_PHONE,
+                                Manifest.permission.ACCESS_COARSE_LOCATION,
+                                Manifest.permission.INTERNET}
+                , FINE_LOCATION);
+    }
+
+
+
 
     @Override
     protected void onStart() {
         super.onStart();
+        AudioManager mode = (AudioManager) this.getSystemService(Context.AUDIO_SERVICE);
+        mode.setRingerMode(AudioManager.RINGER_MODE_SILENT);
 
         if (!checkPermissions()) {
             requestPermissions();
@@ -79,6 +350,12 @@ public class LocationActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        AudioManager mode = (AudioManager) this.getSystemService(Context.AUDIO_SERVICE);
+        mode.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
+    }
 
     private void updateValuesFromBundle(Bundle savedInstanceState) {
         if (savedInstanceState != null) {
@@ -95,18 +372,6 @@ public class LocationActivity extends AppCompatActivity {
         }
     }
 
-    @SuppressWarnings("unused")
-    public void fetchAddressButtonHandler(View view) {
-        if (mLastLocation != null) {
-            startIntentService();
-            return;
-        }
-        // If we have not yet retrieved the user location, we process the user's request by setting
-        // mAddressRequested to true. As far as the user is concerned, pressing the Fetch Address button
-        // immediately kicks off the process of getting the address.
-        mAddressRequested = true;
-        updateUIWidgets();
-    }
 
     private void startIntentService() {
         // Create an intent for passing to the intent service responsible for fetching the address.
@@ -173,10 +438,8 @@ public class LocationActivity extends AppCompatActivity {
     private void updateUIWidgets() {
         if (mAddressRequested) {
             mProgressBar.setVisibility(ProgressBar.VISIBLE);
-            mFetchAddressButton.setEnabled(false);
         } else {
             mProgressBar.setVisibility(ProgressBar.GONE);
-            mFetchAddressButton.setEnabled(true);
         }
     }
 
@@ -195,6 +458,12 @@ public class LocationActivity extends AppCompatActivity {
         // Save the address string.
         savedInstanceState.putString(LOCATION_ADDRESS_KEY, mAddressOutput);
         super.onSaveInstanceState(savedInstanceState);
+    }
+
+    public void play_sound(View view) {
+        MediaPlayer mediaPlayer = MediaPlayer.create(LocationActivity.this,R.raw.alarm);
+        mediaPlayer.start();
+
     }
 
     /**
@@ -319,5 +588,8 @@ public class LocationActivity extends AppCompatActivity {
             }
         }
     }
+
+
+
 
 }
