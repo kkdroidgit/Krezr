@@ -311,16 +311,20 @@ public class LocationActivity extends AppCompatActivity implements ServicesGpsLi
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.refresh:
-                if (mLastLocation != null) {
-                    startIntentService();
-                }
-                mAddressRequested = true;
-                updateUIWidgets();
+                switch_case_prg();
+                break;
             case R.id.stop:
-                mediaPlayer.reset();
-            default:
-                return super.onOptionsItemSelected(item);
+                mediaPlayer.reset();break;
         }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void switch_case_prg() {
+        if (mLastLocation != null) {
+            startIntentService();
+        }
+        mAddressRequested = true;
+        updateUIWidgets();
     }
 
     private void createNavDrawer(Toolbar toolbar) {
